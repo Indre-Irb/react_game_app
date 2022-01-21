@@ -3,10 +3,30 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import {configureStore} from "@reduxjs/toolkit";
+import {Provider} from "react-redux";
+import statusReducer from "./features/status";
+import equipmentReducer from "./features/equipment";
+import triggerReducer from "./features/trigger";
+import weaponReducer from "./features/weapon";
+import arrayReducer from "./features/newArray";
+
+const store = configureStore({
+    reducer: {
+        status: statusReducer,
+        equipment: equipmentReducer,
+        trigger: triggerReducer,
+        weapon: weaponReducer,
+        newArray: arrayReducer,
+    }
+})
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+      <Provider store={store}>
+          <App />
+      </Provider>
+
   </React.StrictMode>,
   document.getElementById('root')
 );

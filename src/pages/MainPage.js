@@ -8,8 +8,16 @@ const MainPage = () => {
     return (
         <div>
             <ToolbarOne/>
-            <CharacterInfo/>
-            <PlayerInventory/>
+            <div className="d-flex">
+                <div className="flex1">
+                    <CharacterInfo/>
+                </div>
+                <div className="flex2">
+                    <PlayerInventory/>
+                </div>
+
+            </div>
+
         </div>
     );
 };

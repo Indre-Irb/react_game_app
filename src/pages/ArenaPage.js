@@ -1,9 +1,10 @@
 import React from 'react';
+import ArenaField from "../components/ArenaField";
 
 const ArenaPage = () => {
     return (
         <div>
-            <h1>Arena</h1>
+            <ArenaField/>
         </div>
     );
 };

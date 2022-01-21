@@ -1,9 +1,12 @@
 import React from 'react';
 import {useNavigate} from "react-router-dom";
+import {updateStatus} from "../features/status";
+import {useDispatch} from "react-redux";
 
 const GameStart = () => {
 
     const navigate = useNavigate();
+    const dispatch = useDispatch();
 
     const characters = [
         {
@@ -15,7 +18,7 @@ const GameStart = () => {
             stamina: 3,
             strength: 1,
             inventorySlots: 3,
-            gold: 100
+            gold: 100000000
         },
         {
             image: "https://images.blz-contentstack.com/v3/assets/blt3452e3b114fab0cd/bltad40c8b16ba5146c/6165db02ff59d903990f26dd/3BSJB91SIUBO1613677288515.png",
@@ -98,6 +101,11 @@ const GameStart = () => {
 
     ]
 
+    function chooseCharacter (hero){
+        dispatch(updateStatus(hero))
+        navigate("/main")
+    }
+
     return (
         <div className="d-flex f-column text-center">
             <div>
@@ -106,7 +114,7 @@ const GameStart = () => {
             <div className="d-flex f-wrap j-center">
                 {characters.map((hero, i) =>
                     <div key={i} className="characterCard d-flex"
-                         onClick={() => navigate("/main")}>
+                         onClick={() => chooseCharacter(hero)}>
                         <div className="d-flex al-center">
                             <div className="flex1">
                                 <img src={hero.image} alt=""/>
