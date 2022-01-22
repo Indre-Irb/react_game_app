@@ -16,7 +16,8 @@ export const statusSlice = createSlice({
             state.value.gold += action.payload / 2
         },
         stateWithWeapon: (state, action) => {
-            {action.payload.map(x => {
+            {
+                action.payload.map(x => {
                     if (!!x.effect.stamina) {
                         state.value.stamina += x.effect.stamina
                     }
@@ -39,8 +40,8 @@ export const statusSlice = createSlice({
             }
         },
         removeEquipmentState: (state, action) => {
-            console.log(action.payload)
-            {action.payload !== undefined && action.payload.map (x => {
+            {
+                action.payload !== undefined && action.payload.map(x => {
                     if (!!x.effect.stamina) {
                         state.value.stamina -= x.effect.stamina
                     }
@@ -62,12 +63,33 @@ export const statusSlice = createSlice({
                 })
             }
         },
-        fightUpdates: (state, action) => {
+        fightUpdatesHealth: (state, action) => {
+            state.value.health -= action.payload
+
+        },
+        fightUpdatesEnergy: (state, action) => {
+            state.value.energy = action.payload
+        },
+        restoreHealth: (state, action) => {
             console.log(action.payload)
+            if (action.payload.energy) {
+                state.value.energy += action.payload.energy
+            } else {
+                state.value.health += action.payload.health
+            }
         }
     }
 })
 
-export const {updateStatus, updatePlayerGold, addGold, stateWithWeapon, removeEquipmentState, fightUpdates} = statusSlice.actions
+export const {
+    updateStatus,
+    updatePlayerGold,
+    addGold,
+    stateWithWeapon,
+    removeEquipmentState,
+    fightUpdatesHealth,
+    fightUpdatesEnergy,
+    restoreHealth
+} = statusSlice.actions
 
 export default statusSlice.reducer;

@@ -2,17 +2,22 @@ import React, {useState} from 'react';
 import {useDispatch, useSelector} from "react-redux";
 import {useNavigate} from "react-router-dom";
 import {toolbarTrigger} from "../features/trigger";
-import {fightUpdates} from "../features/status"
+import {fightUpdatesHealth, fightUpdatesEnergy, restoreHealth} from "../features/status"
+import {enemyStatusUpdate, generatedEnemy} from "../features/enemycard";
+import {removeEquipment} from "../features/equipment";
 
 const ArenaField = () => {
 
     const [getEnemy, setEnemy] = useState([])
+    const [getMessage, setMessage] = useState("")
+    const [getDropItem, setDropItem] = useState([])
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
     const hero = useSelector(state => state.status.value)
     const weapon = useSelector(state => state.weapon.value)
     const equipment = useSelector(state => state.equipment.value)
+    const enemy = useSelector(state => state.enemy.value)
 
     const monsters = [
         {
@@ -610,10 +615,50 @@ const ArenaField = () => {
         const rand = Math.round(Math.random() * monsters.length)
         console.log(rand)
         monsters.map((enemy, index) => index === rand && setEnemy(enemy))
+        dispatch(generatedEnemy(getEnemy))
     }
 
     function attack() {
-        dispatch(fightUpdates(getEnemy))
+        if (hero.health > 0 && hero.energy > 0) {
+            if (!!weapon.energyPerHit){
+                //Enemy attacks hero
+                const newEnergy = hero.energy - weapon.energyPerHit + hero.stamina
+                const randEnemyDamage = Math.round(Math.random() * enemy.maxDamage)
+
+                dispatch(fightUpdatesEnergy(newEnergy))
+                dispatch(fightUpdatesHealth(randEnemyDamage))
+            } else {
+                const newEnergy = hero.energy + hero.stamina
+                const randEnemyDamage = Math.round(Math.random() * enemy.maxDamage)
+
+                dispatch(fightUpdatesEnergy(newEnergy))
+                dispatch(fightUpdatesHealth(randEnemyDamage))
+            }
+        } else {
+            return setMessage("Hero died")
+        }
+        if (enemy.health > 0) {
+            //    Hero attacks Enemy
+            if (!!weapon.maxDamage) {
+                const randHeroDamage = Math.round(Math.random() * weapon.maxDamage)
+                const heroDamage = hero.damage + randHeroDamage
+                dispatch(enemyStatusUpdate(heroDamage))
+            } else {
+                dispatch(enemyStatusUpdate(hero.damage))
+            }
+        } else if (getDropItem.length <= enemy.maxItemsDrop) {
+            const randItem = Math.round(Math.random() * dropItems.length)
+            setDropItem([...getDropItem, dropItems[randItem]])
+            console.log(getDropItem)
+            return setMessage("You killed enemy")
+        }
+    }
+
+
+
+    function restore(item, i) {
+        dispatch(removeEquipment(i))
+        dispatch(restoreHealth(item.effect))
     }
 
     function finish() {
@@ -624,6 +669,9 @@ const ArenaField = () => {
 
     return (
         <div className="arena">
+            <div>
+            <h1 className="text-center">{getMessage}</h1>
+            </div>
             <div className="d-flex">
                 <div className="d-flex f-column">
                     <div className="flex1">
@@ -635,10 +683,10 @@ const ArenaField = () => {
                                 </div>
                                 <div className="d-flex">
                                     <div className="mainBar">
-                                        <div className="barHP"></div>
+                                        <div className="barHP"/>
                                     </div>
                                     <div className="mainBar">
-                                        <div className="barEnergy"></div>
+                                        <div className="barEnergy"/>
                                     </div>
                                 </div>
                             </div>
@@ -646,11 +694,11 @@ const ArenaField = () => {
                                 <div>
                                     <h5>Damage: {hero.damage}</h5>
                                     <div className="d-flex">
-                                        <div className="mark1"></div>
+                                        <div className="mark1"/>
                                         <h5>Health: {hero.health}</h5>
                                     </div>
                                     <div className="d-flex">
-                                        <div className="mark2"></div>
+                                        <div className="mark2"/>
                                         <h5>Energy: {hero.energy}</h5>
                                     </div>
 
@@ -683,9 +731,10 @@ const ArenaField = () => {
                             </div>
                         </div>
                         <div>
-                            {equipment.map((x,i) => !x.maxDamage &&
-                                <div key={i}>
+                            {equipment.map((x, i) => !x.maxDamage &&
+                                <div key={i} className="shopItem" onClick={() => restore(x, i)}>
                                     <img src={x.image} alt=""/>
+                                    <h5>{x.title}</h5>
                                 </div>)}
                         </div>
                     </div>
@@ -710,16 +759,31 @@ const ArenaField = () => {
                     <div className="enemyCard">
                         <div className="d-flex s-between">
                             <div className="mainBar">
-                                <div className="barHP"></div>
+                                <div className="barHP"/>
                             </div>
-                            <div>
-                                <img src={getEnemy.image} alt=""/>
-                                <h3>{getEnemy.name}</h3>
+                            <div className="d-flex f-column al-center">
+                                <img src={enemy.image} alt=""/>
+                                <h3>{enemy.name}</h3>
                             </div>
                         </div>
-                        <h5>Max Damage: {getEnemy.maxDamage}</h5>
-                        <h5>Health: {getEnemy.health}</h5>
-                        <h5>MaxItemDrop: {getEnemy.maxItemsDrop}</h5>
+                        <div className="d-flex w-100 s-evenly">
+                        <div className="d-flex f-column">
+                            <div>
+                                <h5>Max Damage: {enemy.maxDamage}</h5>
+                            </div>
+                            <div className="d-flex">
+                                <div className="mark1"/>
+                                <h5>Health: {enemy.health}</h5>
+                            </div>
+                        </div>
+                        <div>
+                            <h5>MaxItemDrop: {enemy.maxItemsDrop}</h5>
+                        </div>
+                        </div>
+                    </div>
+                    <div>
+                        <img src={getDropItem.image} alt=""/>
+                        <h5>{getDropItem.price}</h5>
                     </div>
                 </div>
             </div>

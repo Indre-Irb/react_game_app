@@ -28,24 +28,23 @@ const CharacterInfo = () => {
                     </div>
                 </div>
                 <div>
+                    {weapon != null &&
                     <div className="characterItem d-flex al-center s-evenly">
                         <div>
                         <img src={weapon.image} alt=""/>
                         </div>
                         <div>
-                                {(weapon.effects) ?
-                                    <div>
-                                        <div className="text">Effects:
-                                            {weapon.effects.map((eff,i) =>
-                                                <h5 key={i} style={{color: "#f67676"}}>{eff.title}</h5>)}</div>
-                                        <h5>Energy per hit: {weapon.energyPerHit}</h5>
-                                        <h5>Max damage: {weapon.maxDamage}</h5>
-                                    </div>
-                                    :
-                                    <h5>Effect: {weapon.title}</h5>}
-                                <h3>Price: {weapon.price} gold</h3>
+                            {(weapon.effects) &&
+                                <div>
+                                    <div className="text">Effects:
+                                        {weapon.effects.map((eff, i) =>
+                                            <h5 key={i} style={{color: "#f67676"}}>{eff.title}</h5>)}</div>
+                                    <h5>Energy per hit: {weapon.energyPerHit}</h5>
+                                    <h5>Max damage: {weapon.maxDamage}</h5>
+                                    <h3>Price: {weapon.price} gold</h3>
+                                </div>}
                         </div>
-                    </div>
+                    </div>}
                 </div>
             </div>
         </div>

@@ -3,11 +3,12 @@ import {createSlice} from "@reduxjs/toolkit";
 export const weaponSlice = createSlice({
     name: "weapon",
     initialState: {
-        value: []
+        value: null
     },
     reducers: {
         equippedItem: (state, action) => {
             state.value = action.payload
+
         },
     }
 })

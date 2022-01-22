@@ -10,6 +10,7 @@ import equipmentReducer from "./features/equipment";
 import triggerReducer from "./features/trigger";
 import weaponReducer from "./features/weapon";
 import arrayReducer from "./features/newArray";
+import enemyReducer from "./features/enemycard"
 
 const store = configureStore({
     reducer: {
@@ -18,6 +19,7 @@ const store = configureStore({
         trigger: triggerReducer,
         weapon: weaponReducer,
         newArray: arrayReducer,
+        enemy: enemyReducer
     }
 })
 
