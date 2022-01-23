@@ -13,7 +13,11 @@ export const statusSlice = createSlice({
             state.value.gold -= action.payload
         },
         addGold: (state, action) => {
-            state.value.gold += action.payload / 2
+            if (action.payload.effects || action.payload.effect){
+                state.value.gold += action.payload.price / 2
+            } else {
+                state.value.gold += action.payload.price
+            }
         },
         stateWithWeapon: (state, action) => {
             {

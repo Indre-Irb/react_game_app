@@ -106,8 +106,6 @@
     margin-top: 20px;
     height: 80%;
     overflow-y: scroll;
-    webkit-scrollbar-color: #f8863e #a1b697;
-    scrollbar-width: thin;
 }
 
 /*Arena*/
@@ -172,20 +170,16 @@
 
 .barHP {
     width: 20px;
-    /*height: 100%;*/
     background-color: #f8863e;
     border-radius: 5px/5px;
     margin-right: 5px;
-    transform : rotate(180deg);
 }
 
 
 .barEnergy {
     width: 20px;
-    /*height: 100%;*/
     background-color: #a1b697;
     border-radius: 5px/5px;
-    transform : rotate(180deg);
 }
 
 .mainBar {

@@ -18,7 +18,7 @@ const PlayerInventory = () => {
     function sellItem(stuff, index) {
         if (trigger) {
             dispatch(removeEquipment(index))
-            dispatch(addGold(stuff.price))
+            dispatch(addGold(stuff))
         } else if (!!stuff.maxDamage) {
             oldWeapon = weapon
             dispatch(removeEquipment(index))
@@ -32,9 +32,6 @@ const PlayerInventory = () => {
         }
 
     }
-
-    console.log(oldWeapon)
-    console.log(equipment)
 
     return (
         <div className="inventoryInfo">
@@ -52,12 +49,14 @@ const PlayerInventory = () => {
                                             <h5 key={i} style={{color: "#f67676"}}>{eff.title}</h5>)}</div>
                                     <h5>Energy per hit: {stuff.energyPerHit}</h5>
                                     <h5>Max damage: {stuff.maxDamage}</h5>
+                                    <h3>Price: {stuff.price} gold</h3>
                                 </div>}
                             {(stuff.effect) &&
                                 <div>
                                     <h5>Effect: {stuff.title}</h5>
                                     <h3>Price: {stuff.price} gold</h3>
                                 </div>}
+                            {(!stuff.effects && !stuff.effect ? <h3>Price: {stuff.price} gold</h3> : null)}
                         </div>
                     </div>)}
             </div>

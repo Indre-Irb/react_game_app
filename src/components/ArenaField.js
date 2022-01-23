@@ -4,13 +4,17 @@ import {useNavigate} from "react-router-dom";
 import {toolbarTrigger} from "../features/trigger";
 import {fightUpdatesHealth, fightUpdatesEnergy, restoreHealth} from "../features/status"
 import {enemyStatusUpdate, generatedEnemy} from "../features/enemycard";
-import {removeEquipment} from "../features/equipment";
+import {addEquipment, removeEquipment} from "../features/equipment";
+import {generateEnemyTrigger} from "../features/arenaTrigger";
 
 const ArenaField = () => {
 
-    const [getEnemy, setEnemy] = useState([])
     const [getMessage, setMessage] = useState("")
     const [getDropItem, setDropItem] = useState([])
+    const [getHpBar, setHpBar] = useState(100)
+    const [getEnergyBar, setEnergyBar] = useState(100)
+    const [getEnemyBar, setEnemyBar] = useState(100)
+
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
@@ -18,6 +22,11 @@ const ArenaField = () => {
     const weapon = useSelector(state => state.weapon.value)
     const equipment = useSelector(state => state.equipment.value)
     const enemy = useSelector(state => state.enemy.value)
+    const arenaTrigger = useSelector(state => state.arenaTrigger.value)
+
+    let newHpValue = getHpBar
+    let newEnergyValue = getEnergyBar
+    let newEnemyValue = getEnemyBar
 
     const monsters = [
         {
@@ -613,48 +622,70 @@ const ArenaField = () => {
 
     function generate() {
         const rand = Math.round(Math.random() * monsters.length)
-        console.log(rand)
-        monsters.map((enemy, index) => index === rand && setEnemy(enemy))
-        dispatch(generatedEnemy(getEnemy))
+        monsters.map((enemy, index) => index === rand && dispatch(generatedEnemy(enemy)))
+        dispatch(generateEnemyTrigger(true))
     }
 
     function attack() {
+
         if (hero.health > 0 && hero.energy > 0) {
-            if (!!weapon.energyPerHit){
+            if (weapon != null) {
                 //Enemy attacks hero
                 const newEnergy = hero.energy - weapon.energyPerHit + hero.stamina
                 const randEnemyDamage = Math.round(Math.random() * enemy.maxDamage)
 
                 dispatch(fightUpdatesEnergy(newEnergy))
                 dispatch(fightUpdatesHealth(randEnemyDamage))
+
+                const newHpBar = randEnemyDamage * newHpValue / hero.health
+                newHpValue -= newHpBar
+                setHpBar(newHpValue)
+
+                const newEnergyBar = newEnergy * newEnergyValue / hero.energy
+                newEnergyValue -= newEnergyBar
+                setEnergyBar(newEnergyValue)
+
             } else {
                 const newEnergy = hero.energy + hero.stamina
                 const randEnemyDamage = Math.round(Math.random() * enemy.maxDamage)
 
                 dispatch(fightUpdatesEnergy(newEnergy))
                 dispatch(fightUpdatesHealth(randEnemyDamage))
+
+                const newHpBar = randEnemyDamage * newHpValue / hero.health
+                newHpValue -= newHpBar
+                setHpBar(newHpValue)
+
             }
         } else {
+            dispatch(generateEnemyTrigger(false))
             return setMessage("Hero died")
         }
+
         if (enemy.health > 0) {
             //    Hero attacks Enemy
-            if (!!weapon.maxDamage) {
+            if (weapon != null) {
                 const randHeroDamage = Math.round(Math.random() * weapon.maxDamage)
                 const heroDamage = hero.damage + randHeroDamage
                 dispatch(enemyStatusUpdate(heroDamage))
+
+                const newEnemyBar = randHeroDamage * newEnemyValue / enemy.health
+                newEnemyValue -= newEnemyBar
+                setEnemyBar(newEnemyValue)
+
             } else {
+
+                const newEnemyBar = hero.damage * newEnemyValue / enemy.health
+                newEnemyValue -= newEnemyBar
+                setEnemyBar(newEnemyValue)
+
                 dispatch(enemyStatusUpdate(hero.damage))
             }
         } else if (getDropItem.length <= enemy.maxItemsDrop) {
-            const randItem = Math.round(Math.random() * dropItems.length)
-            setDropItem([...getDropItem, dropItems[randItem]])
-            console.log(getDropItem)
+            dispatch(generateEnemyTrigger(false))
             return setMessage("You killed enemy")
         }
     }
-
-
 
     function restore(item, i) {
         dispatch(removeEquipment(i))
@@ -666,11 +697,26 @@ const ArenaField = () => {
         navigate("/main")
     }
 
+    function collect(drop) {
+        const rand = Math.round(Math.random() * drop)
+        const newArray = Array(rand).fill().map(() => Math.round(Math.random() * dropItems.length))
+        dropItems.map((item, index) =>
+            newArray.map(ind => index === ind && setDropItem([...getDropItem, item])))
+        console.log(newArray)
+        console.log(getDropItem)
+    }
+
+    function takeItem(item) {
+        if (equipment.length < hero.inventorySlots) {
+            dispatch(addEquipment(item))
+        }
+    }
+
 
     return (
         <div className="arena">
             <div>
-            <h1 className="text-center">{getMessage}</h1>
+                <h1 className="text-center">{getMessage}</h1>
             </div>
             <div className="d-flex">
                 <div className="d-flex f-column">
@@ -683,10 +729,10 @@ const ArenaField = () => {
                                 </div>
                                 <div className="d-flex">
                                     <div className="mainBar">
-                                        <div className="barHP"/>
+                                        <div className="barHP" style={{height: getHpBar +"%"}}/>
                                     </div>
                                     <div className="mainBar">
-                                        <div className="barEnergy"/>
+                                        <div className="barEnergy" style={{height: getEnergyBar + "%"}}/>
                                     </div>
                                 </div>
                             </div>
@@ -701,7 +747,6 @@ const ArenaField = () => {
                                         <div className="mark2"/>
                                         <h5>Energy: {hero.energy}</h5>
                                     </div>
-
                                 </div>
                                 <div>
                                     <h5>Stamina: {hero.stamina}</h5>
@@ -709,26 +754,26 @@ const ArenaField = () => {
                                 </div>
                             </div>
                         </div>
-
                         <div>
-                            <div className="characterItem d-flex al-center s-evenly">
-                                <div>
-                                    <img src={weapon.image} alt=""/>
-                                </div>
-                                <div>
-                                    {(weapon.effects) ?
-                                        <div>
-                                            <div className="text">Effects:
-                                                {weapon.effects.map((eff, i) =>
-                                                    <h5 key={i} style={{color: "#f67676"}}>{eff.title}</h5>)}</div>
-                                            <h5>Energy per hit: {weapon.energyPerHit}</h5>
-                                            <h5>Max damage: {weapon.maxDamage}</h5>
-                                        </div>
-                                        :
-                                        <h5>Effect: {weapon.title}</h5>}
-                                    <h3>Price: {weapon.price} gold</h3>
-                                </div>
-                            </div>
+                            {weapon != null &&
+                                <div className="characterItem d-flex al-center s-evenly">
+                                    <div>
+                                        <img src={weapon.image} alt=""/>
+                                    </div>
+                                    <div>
+                                        {(weapon.effects) ?
+                                            <div>
+                                                <div className="text">Effects:
+                                                    {weapon.effects.map((eff, i) =>
+                                                        <h5 key={i} style={{color: "#f67676"}}>{eff.title}</h5>)}</div>
+                                                <h5>Energy per hit: {weapon.energyPerHit}</h5>
+                                                <h5>Max damage: {weapon.maxDamage}</h5>
+                                            </div>
+                                            :
+                                            <h5>Effect: {weapon.title}</h5>}
+                                        <h3>Price: {weapon.price} gold</h3>
+                                    </div>
+                                </div>}
                         </div>
                         <div>
                             {equipment.map((x, i) => !x.maxDamage &&
@@ -740,26 +785,32 @@ const ArenaField = () => {
                     </div>
                 </div>
                 <div className="d-flex f-column s-between flex1">
-                    <div className="d-flex f-column al-center">
-                        <div onClick={() => generate()} className="generateButton">Generate Enemy</div>
-                    </div>
-                    <div className="d-flex f-column al-center">
-                        <div onClick={() => attack()} className="generateButton">Attack Enemy</div>
-                    </div>
-                    <div className="d-flex s-between">
+                    {!arenaTrigger &&
                         <div className="d-flex f-column al-center">
-                            <div onClick={() => finish()} className="generateButton">Go Home</div>
+                            <div onClick={() => generate()} className="generateButton">Generate Enemy</div>
                         </div>
+                    }
+                    {arenaTrigger &&
                         <div className="d-flex f-column al-center">
-                            <div onClick={() => generate()} className="generateButton">Face a new enemy</div>
-                        </div>
-                    </div>
+                            <div onClick={() => attack()} className="generateButton">Attack Enemy</div>
+                        </div>}
+                    {!arenaTrigger &&
+                        <div className="d-flex s-between">
+                            <div className="d-flex f-column al-center">
+                                <div onClick={() => finish()} className="generateButton">Go Home</div>
+                            </div>
+                            <div className="d-flex f-column al-center">
+                                <div onClick={() => collect(enemy.maxItemsDrop)} className="generateButton">Collect
+                                    Enemy Items
+                                </div>
+                            </div>
+                        </div>}
                 </div>
                 <div className="flex1">
                     <div className="enemyCard">
                         <div className="d-flex s-between">
                             <div className="mainBar">
-                                <div className="barHP"/>
+                                <div className="barHP" style={{height: getEnemyBar +"%"}}/>
                             </div>
                             <div className="d-flex f-column al-center">
                                 <img src={enemy.image} alt=""/>
@@ -767,24 +818,25 @@ const ArenaField = () => {
                             </div>
                         </div>
                         <div className="d-flex w-100 s-evenly">
-                        <div className="d-flex f-column">
+                            <div className="d-flex f-column">
+                                <div>
+                                    <h5>Max Damage: {enemy.maxDamage}</h5>
+                                </div>
+                                <div className="d-flex">
+                                    <div className="mark1"/>
+                                    <h5>Health: {enemy.health}</h5>
+                                </div>
+                            </div>
                             <div>
-                                <h5>Max Damage: {enemy.maxDamage}</h5>
-                            </div>
-                            <div className="d-flex">
-                                <div className="mark1"/>
-                                <h5>Health: {enemy.health}</h5>
+                                <h5>MaxItemDrop: {enemy.maxItemsDrop}</h5>
                             </div>
                         </div>
-                        <div>
-                            <h5>MaxItemDrop: {enemy.maxItemsDrop}</h5>
-                        </div>
-                        </div>
                     </div>
-                    <div>
-                        <img src={getDropItem.image} alt=""/>
-                        <h5>{getDropItem.price}</h5>
-                    </div>
+                    {getDropItem.map((x, i) =>
+                        <div key={i} className="shopItem" onClick={() => takeItem(x)}>
+                            <img src={x.image} alt=""/>
+                            <h5>Price: {x.price}</h5>
+                        </div>)}
                 </div>
             </div>
             <div></div>

@@ -10,7 +10,6 @@ export const enemySlice = createSlice({
             state.value = action.payload
         },
         enemyStatusUpdate: (state, action) => {
-            console.log(action.payload)
             state.value.health -= action.payload
         }
 

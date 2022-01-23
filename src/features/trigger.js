@@ -1,7 +1,7 @@
 import  {createSlice} from "@reduxjs/toolkit";
 
 export const triggerSlice = createSlice({
-    name: "equipment",
+    name: "trigger",
     initialState: {
         value: false
     },
@@ -12,6 +12,6 @@ export const triggerSlice = createSlice({
     }
 })
 
-export const {toolbarTrigger} = triggerSlice.actions
+export const {toolbarTrigger, generateEnemyTrigger} = triggerSlice.actions
 
 export default triggerSlice.reducer;

@@ -3,17 +3,15 @@ import {createSlice} from "@reduxjs/toolkit";
 export const newArraySlice = createSlice({
     name: "newArray",
     initialState: {
-        value: {
-
-        }
+        value: [{}]
     },
     reducers: {
-        updatedWeapons: (state, {payload}) => {
-
+        enemyWeapons: (state, action) => {
+            state.value = action.payload
         }
     }
 })
 
-export const {shopArray} = newArraySlice.actions
+export const {enemyWeapons} = newArraySlice.actions
 
 export default newArraySlice.reducer;

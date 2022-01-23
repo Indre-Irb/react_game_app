@@ -874,8 +874,6 @@ const Trader = () => {
         }
     }
 
-    console.log(getItem)
-
     return (
         <div className="storeInfo">
             <div className="d-flex">

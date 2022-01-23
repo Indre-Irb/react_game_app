@@ -6,8 +6,6 @@ const CharacterInfo = () => {
     const hero = useSelector(state => state.status.value)
     const weapon = useSelector(state => state.weapon.value)
 
-    console.log(weapon)
-
     return (
         <div className="characterInfo">
             <h1 className="text-center">Hero</h1>
