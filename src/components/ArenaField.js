@@ -651,7 +651,6 @@ const ArenaField = () => {
                 setHpBar(newHpValue)
 
                 const newEnergyBar = newEnergy * newEnergyValue / hero.energy
-                console.log(newEnergyValue, "pirma value")
                 if (newEnergyBar < 100) {
                     newEnergyValue -= newEnergyBar
                     setEnergyBar(newEnergyValue)
@@ -715,12 +714,7 @@ const ArenaField = () => {
         const newArray = Array(rand).fill().map(() => Math.round(Math.random() * dropItems.length))
         newArray.map(x => dropItems.map((item, index) => x === index &&
             dispatch(enemyWeapons(item))))
-        console.log(newArray)
-        console.log(getDropItem)
-        if(!!enemyDropItem){
-            dispatch(generateCollectTrigger(true))
-        }
-
+        dispatch(generateCollectTrigger(true))
     }
 
     function takeItem(item, ind) {
