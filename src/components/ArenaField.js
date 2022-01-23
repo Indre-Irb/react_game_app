@@ -6,6 +6,8 @@ import {fightUpdatesHealth, fightUpdatesEnergy, restoreHealth} from "../features
 import {enemyStatusUpdate, generatedEnemy} from "../features/enemycard";
 import {addEquipment, removeEquipment} from "../features/equipment";
 import {generateEnemyTrigger} from "../features/arenaTrigger";
+import {enemyWeapons, removeEnemyEquipment, removeEnemyAllItems} from "../features/newArray"
+import {generateCollectTrigger} from "../features/collectTrigger";
 
 const ArenaField = () => {
 
@@ -23,10 +25,13 @@ const ArenaField = () => {
     const equipment = useSelector(state => state.equipment.value)
     const enemy = useSelector(state => state.enemy.value)
     const arenaTrigger = useSelector(state => state.arenaTrigger.value)
+    const enemyDropItem = useSelector(state => state.newArray.value)
+    const collectTrigger = useSelector(state => state.collectTrigger.value)
 
     let newHpValue = getHpBar
     let newEnergyValue = getEnergyBar
     let newEnemyValue = getEnemyBar
+
 
     const monsters = [
         {
@@ -624,10 +629,14 @@ const ArenaField = () => {
         const rand = Math.round(Math.random() * monsters.length)
         monsters.map((enemy, index) => index === rand && dispatch(generatedEnemy(enemy)))
         dispatch(generateEnemyTrigger(true))
+        if (!!enemyDropItem){
+            dispatch(removeEnemyAllItems(enemyDropItem))
+        }
+
     }
 
     function attack() {
-
+        dispatch(generateCollectTrigger(false))
         if (hero.health > 0 && hero.energy > 0) {
             if (weapon != null) {
                 //Enemy attacks hero
@@ -642,8 +651,11 @@ const ArenaField = () => {
                 setHpBar(newHpValue)
 
                 const newEnergyBar = newEnergy * newEnergyValue / hero.energy
-                newEnergyValue -= newEnergyBar
-                setEnergyBar(newEnergyValue)
+                console.log(newEnergyValue, "pirma value")
+                if (newEnergyBar < 100) {
+                    newEnergyValue -= newEnergyBar
+                    setEnergyBar(newEnergyValue)
+                }
 
             } else {
                 const newEnergy = hero.energy + hero.stamina
@@ -658,6 +670,7 @@ const ArenaField = () => {
 
             }
         } else {
+            dispatch(generateCollectTrigger(true))
             dispatch(generateEnemyTrigger(false))
             return setMessage("Hero died")
         }
@@ -700,18 +713,24 @@ const ArenaField = () => {
     function collect(drop) {
         const rand = Math.round(Math.random() * drop)
         const newArray = Array(rand).fill().map(() => Math.round(Math.random() * dropItems.length))
-        dropItems.map((item, index) =>
-            newArray.map(ind => index === ind && setDropItem([...getDropItem, item])))
+        newArray.map(x => dropItems.map((item, index) => x === index &&
+            dispatch(enemyWeapons(item))))
         console.log(newArray)
         console.log(getDropItem)
+        if(!!enemyDropItem){
+            dispatch(generateCollectTrigger(true))
+        }
+
     }
 
-    function takeItem(item) {
+    function takeItem(item, ind) {
         if (equipment.length < hero.inventorySlots) {
             dispatch(addEquipment(item))
+            dispatch(removeEnemyEquipment(ind))
         }
     }
 
+    console.log(enemyDropItem, "dropItem")
 
     return (
         <div className="arena">
@@ -729,7 +748,7 @@ const ArenaField = () => {
                                 </div>
                                 <div className="d-flex">
                                     <div className="mainBar">
-                                        <div className="barHP" style={{height: getHpBar +"%"}}/>
+                                        <div className="barHP" style={{height: getHpBar + "%"}}/>
                                     </div>
                                     <div className="mainBar">
                                         <div className="barEnergy" style={{height: getEnergyBar + "%"}}/>
@@ -784,7 +803,7 @@ const ArenaField = () => {
                         </div>
                     </div>
                 </div>
-                <div className="d-flex f-column s-between flex1">
+                <div className="d-flex f-column s-evenly flex1">
                     {!arenaTrigger &&
                         <div className="d-flex f-column al-center">
                             <div onClick={() => generate()} className="generateButton">Generate Enemy</div>
@@ -799,18 +818,20 @@ const ArenaField = () => {
                             <div className="d-flex f-column al-center">
                                 <div onClick={() => finish()} className="generateButton">Go Home</div>
                             </div>
-                            <div className="d-flex f-column al-center">
-                                <div onClick={() => collect(enemy.maxItemsDrop)} className="generateButton">Collect
-                                    Enemy Items
-                                </div>
-                            </div>
+                            {!collectTrigger &&
+                                <div className="d-flex f-column al-center">
+                                    <div onClick={() => collect(enemy.maxItemsDrop)}
+                                         className="generateButton f-size">Collect
+                                        Enemy Items
+                                    </div>
+                                </div>}
                         </div>}
                 </div>
                 <div className="flex1">
                     <div className="enemyCard">
                         <div className="d-flex s-between">
                             <div className="mainBar">
-                                <div className="barHP" style={{height: getEnemyBar +"%"}}/>
+                                <div className="barHP" style={{height: getEnemyBar + "%"}}/>
                             </div>
                             <div className="d-flex f-column al-center">
                                 <img src={enemy.image} alt=""/>
@@ -832,8 +853,8 @@ const ArenaField = () => {
                             </div>
                         </div>
                     </div>
-                    {getDropItem.map((x, i) =>
-                        <div key={i} className="shopItem" onClick={() => takeItem(x)}>
+                    {enemyDropItem.map((x, i) =>
+                        <div key={i} className="shopItem" onClick={() => takeItem(x, i)}>
                             <img src={x.image} alt=""/>
                             <h5>Price: {x.price}</h5>
                         </div>)}

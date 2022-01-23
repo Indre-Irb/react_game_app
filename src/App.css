@@ -188,6 +188,7 @@
     background-color: white;
     border: 1px solid #f8863e;
     border-radius: 5px/5px;
+    transform: rotate(180deg);
 }
 
 .mark1 {
@@ -258,6 +259,10 @@
 
 .w-100 {
     width: 100%;
+}
+
+.f-size {
+    font-size: 18px;
 }
 
 

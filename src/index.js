@@ -11,7 +11,8 @@ import triggerReducer from "./features/trigger";
 import weaponReducer from "./features/weapon";
 import arrayReducer from "./features/newArray";
 import enemyReducer from "./features/enemycard";
-import arenaTriggerReducer from "./features/arenaTrigger"
+import arenaTriggerReducer from "./features/arenaTrigger";
+import collectTriggerReducer from "./features/collectTrigger";
 
 const store = configureStore({
     reducer: {
@@ -21,7 +22,8 @@ const store = configureStore({
         weapon: weaponReducer,
         newArray: arrayReducer,
         enemy: enemyReducer,
-        arenaTrigger: arenaTriggerReducer
+        arenaTrigger: arenaTriggerReducer,
+        collectTrigger: collectTriggerReducer
     }
 })
 

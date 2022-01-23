@@ -18,7 +18,7 @@ const GameStart = () => {
             stamina: 3,
             strength: 1,
             inventorySlots: 3,
-            gold: 100000000
+            gold: 100
         },
         {
             image: "https://images.blz-contentstack.com/v3/assets/blt3452e3b114fab0cd/bltad40c8b16ba5146c/6165db02ff59d903990f26dd/3BSJB91SIUBO1613677288515.png",

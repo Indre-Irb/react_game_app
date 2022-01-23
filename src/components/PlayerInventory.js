@@ -1,6 +1,6 @@
 import React from 'react';
 import {useDispatch, useSelector} from "react-redux";
-import {addEquipment, removeEquipment, swapEquipment} from "../features/equipment";
+import {addEquipment, removeEquipment} from "../features/equipment";
 import {addGold, stateWithWeapon, removeEquipmentState} from "../features/status";
 import {equippedItem} from "../features/weapon"
 
@@ -25,7 +25,7 @@ const PlayerInventory = () => {
             dispatch(equippedItem(stuff))
             dispatch(stateWithWeapon(stuff.effects))
 
-            if (weapon != null ) {
+            if (weapon != null) {
                 dispatch(addEquipment(oldWeapon))
                 dispatch(removeEquipmentState(oldWeapon.effects))
             }
